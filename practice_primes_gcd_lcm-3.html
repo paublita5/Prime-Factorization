@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice: Primes, Factorization, GCD &amp; LCM</title>
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    },
+    options: {
+      skipHtmlTags: ['script','noscript','style','textarea','pre','code']
+    }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" async></script>
+<style>
+  :root{
+    --accent:#6a2fc9; --accent-dark:#4b1f8f; --bg:#f7f5fb; --card:#ffffff;
+    --text:#222; --muted:#666; --correct:#1a8a43; --incorrect:#c62828;
+  }
+  *{box-sizing:border-box;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg); color:var(--text); margin:0; padding:0 0 60px;
+  }
+  header{
+    background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+    color:#fff; padding:28px 20px 22px; text-align:center;
+  }
+  header h1{margin:0 0 6px; font-size:1.6em;}
+  header p{margin:0; opacity:0.9; font-size:0.95em;}
+  .container{max-width:860px; margin:0 auto; padding:20px;}
+  .progress-wrap{
+    position:sticky; top:0; z-index:10; background:var(--bg);
+    padding:12px 0; border-bottom:1px solid #e0dced;
+  }
+  .progress-bar-bg{
+    width:100%; background:#e4ddf2; border-radius:20px; height:14px; overflow:hidden;
+  }
+  .progress-bar-fill{
+    height:100%; background:var(--accent); width:0%; transition:width 0.3s ease; border-radius:20px;
+  }
+  .progress-text{font-size:0.85em; color:var(--muted); margin-top:6px; text-align:right;}
+  .section-title{
+    margin:36px 0 10px; font-size:1.25em; color:var(--accent-dark);
+    border-bottom:3px solid var(--accent); padding-bottom:6px;
+  }
+  .section-sub{color:var(--muted); font-size:0.92em; margin-bottom:16px;}
+  .card{
+    background:var(--card); border-radius:12px; padding:18px 20px; margin-bottom:16px;
+    box-shadow:0 1px 4px rgba(0,0,0,0.08); border-left:5px solid var(--accent);
+  }
+  .card.answered-correct{border-left-color:var(--correct);}
+  .card.answered-incorrect{border-left-color:var(--incorrect);}
+  .q-num{font-weight:700; color:var(--accent-dark); margin-right:6px;}
+  .q-text{margin-bottom:12px; line-height:1.5;}
+  .answer-row{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:8px;}
+  input[type="text"]{
+    padding:8px 10px; border:2px solid #ddd; border-radius:8px; font-size:1em;
+    width:220px; max-width:100%;
+  }
+  input[type="text"]:focus{outline:none; border-color:var(--accent);}
+  button.check-btn{
+    background:var(--accent); color:#fff; border:none; padding:9px 16px;
+    border-radius:8px; cursor:pointer; font-size:0.95em; font-weight:600;
+  }
+  button.check-btn:hover{background:var(--accent-dark);}
+  button.reveal-btn{
+    background:none; border:1px solid var(--accent); color:var(--accent);
+    padding:8px 14px; border-radius:8px; cursor:pointer; font-size:0.9em;
+  }
+  button.reveal-btn:hover{background:#f0eaff;}
+  .feedback{font-weight:600; min-width:90px;}
+  .feedback.correct{color:var(--correct);}
+  .feedback.incorrect{color:var(--incorrect);}
+  .solution{
+    margin-top:10px; padding:12px 14px; background:#f3effa; border-radius:8px;
+    font-size:0.93em; line-height:1.6; display:none;
+  }
+  .solution.show{display:block;}
+  .multi-field{display:flex; flex-direction:column; gap:8px; margin-bottom:10px;}
+  .multi-field label{font-size:0.9em; color:var(--muted); width:50px; display:inline-block;}
+  .conceptual textarea{
+    width:100%; min-height:70px; padding:10px; border:2px solid #ddd; border-radius:8px;
+    font-family:inherit; font-size:0.95em; resize:vertical;
+  }
+  details.hint{margin-top:8px; font-size:0.88em; color:var(--muted);}
+  summary{cursor:pointer; color:var(--accent);}
+  .final-score{
+    text-align:center; padding:24px; background:var(--card); border-radius:12px;
+    margin-top:30px; box-shadow:0 1px 4px rgba(0,0,0,0.1);
+  }
+  .final-score h2{color:var(--accent-dark);}
+  #score-display{font-size:2.2em; font-weight:800; color:var(--accent);}
+  .step-list{margin:0; padding-left:18px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Primes, Factorization, GCD &amp; LCM</h1>
+  <p>Interactive Practice Assignment — Discrete Math</p>
+</header>
+
+<div class="progress-wrap">
+  <div class="container" style="padding:0 20px;">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">0 / 19 checked</div>
+  </div>
+</div>
+
+<div class="container">
+
+<p style="color:var(--muted); font-size:0.95em;">Work through each problem, type your answer, and click <strong>Check</strong>. Use <strong>Show Solution</strong> if you get stuck — the goal is to practice the prime decomposition and Euclidean Algorithm techniques from lecture.</p>
+
+<!-- PART A -->
+<div class="section-title">Part A: Prime Decomposition</div>
+<div class="section-sub">Enter prime decompositions as numbers separated by <code>*</code> (e.g. <code>2*2*3*5</code>). Order doesn't matter.</div>
+
+<div class="card" data-answers="2*2*3*5*7">
+  <div class="q-text"><span class="q-num">1.</span> Find the prime decomposition of 420.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="e.g. 2*2*3*5*7">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">$420 = 2^2 \cdot 3 \cdot 5 \cdot 7$</div>
+</div>
+
+<div class="card" data-answers="2*2*2*3*5*13">
+  <div class="q-text"><span class="q-num">2.</span> Find the prime decomposition of 1,560.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="e.g. 2*2*2*3*5*13">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">$1560 = 2^3 \cdot 3 \cdot 5 \cdot 13$</div>
+</div>
+
+<div class="card" data-answers="3*5*5*7*7">
+  <div class="q-text"><span class="q-num">3.</span> Find the prime decomposition of 3,675.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="e.g. 3*5*5*7*7">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">$3675 = 3 \cdot 5^2 \cdot 7^2$</div>
+</div>
+
+<div class="card" data-answers="false,f">
+  <div class="q-text"><span class="q-num">4.</span> True or False: "1 is a prime number."</div>
+  <div class="answer-row">
+    <input type="text" placeholder="True or False">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">False — the definition of prime requires that the only positive divisors of $p$ are $1$ and $p$ itself; $1$ fails this (its only divisor is $1$).</div>
+</div>
+
+<div class="card" data-answers="2*2*2*3*3*7*11">
+  <div class="q-text"><span class="q-num">5.</span> Find the prime decomposition of 5,544.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="e.g. 2*2*2*3*3*7*11">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">$5544 = 2^3 \cdot 3^2 \cdot 7 \cdot 11$</div>
+</div>
+
+<!-- PART B -->
+<div class="section-title">Part B: GCD &amp; LCM via Prime Decomposition</div>
+<div class="section-sub">For each pair, find gcd and lcm as plain numbers.</div>
+
+<div class="card" data-gcd="12" data-lcm="72">
+  <div class="q-text"><span class="q-num">6.</span> $(24, 36)$ — find $\gcd$ and $\operatorname{lcm}$.</div>
+  <div class="multi-field">
+    <div class="answer-row"><label>gcd =</label><input type="text" class="gcd-input" placeholder="gcd"></div>
+    <div class="answer-row"><label>lcm =</label><input type="text" class="lcm-input" placeholder="lcm"></div>
+  </div>
+  <div class="answer-row">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    $24 = 2^3\cdot3$, $36 = 2^2\cdot3^2$<br>
+    $\gcd = 2^2\cdot3 = 12$ &nbsp; $\operatorname{lcm} = 2^3\cdot3^2 = 72$<br>
+    Common divisors: $1,2,3,4,6,12$
+  </div>
+</div>
+
+<div class="card" data-gcd="2" data-lcm="2100">
+  <div class="q-text"><span class="q-num">7.</span> $(50, 84)$ — find $\gcd$ and $\operatorname{lcm}$.</div>
+  <div class="multi-field">
+    <div class="answer-row"><label>gcd =</label><input type="text" class="gcd-input" placeholder="gcd"></div>
+    <div class="answer-row"><label>lcm =</label><input type="text" class="lcm-input" placeholder="lcm"></div>
+  </div>
+  <div class="answer-row">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    $50 = 2\cdot5^2$, $84 = 2^2\cdot3\cdot7$<br>
+    $\gcd = 2$ &nbsp; $\operatorname{lcm} = 2\cdot5^2\cdot2\cdot3\cdot7 = 2100$<br>
+    Common divisors: $1,2$
+  </div>
+</div>
+
+<div class="card" data-gcd="18" data-lcm="3780">
+  <div class="q-text"><span class="q-num">8.</span> $(252, 270)$ — find $\gcd$ and $\operatorname{lcm}$.</div>
+  <div class="multi-field">
+    <div class="answer-row"><label>gcd =</label><input type="text" class="gcd-input" placeholder="gcd"></div>
+    <div class="answer-row"><label>lcm =</label><input type="text" class="lcm-input" placeholder="lcm"></div>
+  </div>
+  <div class="answer-row">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    $252 = 2^2\cdot3^2\cdot7$, $270 = 2\cdot3^3\cdot5$<br>
+    $\gcd = 2\cdot3^2 = 18$ &nbsp; $\operatorname{lcm} = 2^2\cdot3^3\cdot5\cdot7 = 3780$<br>
+    Common divisors: $1,2,3,6,9,18$
+  </div>
+</div>
+
+<div class="card" data-gcd="210" data-lcm="44100">
+  <div class="q-text"><span class="q-num">9.</span> $(2940, 3150)$ — find $\gcd$ and $\operatorname{lcm}$.</div>
+  <div class="multi-field">
+    <div class="answer-row"><label>gcd =</label><input type="text" class="gcd-input" placeholder="gcd"></div>
+    <div class="answer-row"><label>lcm =</label><input type="text" class="lcm-input" placeholder="lcm"></div>
+  </div>
+  <div class="answer-row">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    $2940 = 2^2\cdot3\cdot5\cdot7^2$, $3150 = 2\cdot3^2\cdot5^2\cdot7$<br>
+    $\gcd = 2\cdot3\cdot5\cdot7 = 210$ &nbsp; $\operatorname{lcm} = 2^2\cdot3^2\cdot5^2\cdot7^2 = 44100$<br>
+    Common divisors: $1,2,3,5,6,7,10,14,15,21,30,35,42,70,105,210$
+  </div>
+</div>
+
+<div class="card" data-gcd="2695" data-lcm="53900">
+  <div class="q-text"><span class="q-num">10.</span> $(13475, 10780)$ — find $\gcd$ and $\operatorname{lcm}$.</div>
+  <div class="multi-field">
+    <div class="answer-row"><label>gcd =</label><input type="text" class="gcd-input" placeholder="gcd"></div>
+    <div class="answer-row"><label>lcm =</label><input type="text" class="lcm-input" placeholder="lcm"></div>
+  </div>
+  <div class="answer-row">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    $13475 = 5^2\cdot7^2\cdot11$, $10780 = 2^2\cdot5\cdot7^2\cdot11$<br>
+    $\gcd = 5\cdot7^2\cdot11 = 2695$ &nbsp; $\operatorname{lcm} = 2^2\cdot5^2\cdot7^2\cdot11 = 53900$<br>
+    Common divisors: $1,5,7,11,35,49,55,77,245,385,539,2695$
+  </div>
+</div>
+
+<!-- PART C -->
+<div class="section-title">Part C: Euclidean Algorithm</div>
+<div class="section-sub">Use the Euclidean Algorithm (NOT prime factorization) to find each GCD. Enter just the final number.</div>
+
+<div class="card" data-answers="18">
+  <div class="q-text"><span class="q-num">11.</span> $\gcd(252, 198)$ — show every division step.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="gcd">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    $252=198\cdot1+54$<br>$198=54\cdot3+36$<br>$54=36\cdot1+18$<br>$36=18\cdot2+0$<br>
+    $\gcd = 18$
+  </div>
+</div>
+
+<div class="card" data-answers="21">
+  <div class="q-text"><span class="q-num">12.</span> $\gcd(840, 231)$ — show every division step.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="gcd">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    $840=231\cdot3+147$<br>$231=147\cdot1+84$<br>$147=84\cdot1+63$<br>$84=63\cdot1+21$<br>$63=21\cdot3+0$<br>
+    $\gcd = 21$
+  </div>
+</div>
+
+<div class="card" data-answers="3">
+  <div class="q-text"><span class="q-num">13.</span> $\gcd(1734, 1215)$ — show every division step.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="gcd">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    $1734=1215\cdot1+519$<br>$1215=519\cdot2+177$<br>$519=177\cdot2+165$<br>$177=165\cdot1+12$<br>
+    $165=12\cdot13+9$<br>$12=9\cdot1+3$<br>$9=3\cdot3+0$<br>
+    $\gcd = 3$
+  </div>
+</div>
+
+<div class="card" data-answers="1">
+  <div class="q-text"><span class="q-num">14.</span> $\gcd(987, 610)$ — show every division step.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="gcd">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    These are consecutive Fibonacci numbers — the worst case for the Euclidean Algorithm (every quotient is 1):<br>
+    $987=610\cdot1+377$, $610=377\cdot1+233$, $377=233\cdot1+144$, $233=144\cdot1+89$, $144=89\cdot1+55$,<br>
+    $89=55\cdot1+34$, $55=34\cdot1+21$, $34=21\cdot1+13$, $21=13\cdot1+8$, $13=8\cdot1+5$,<br>
+    $8=5\cdot1+3$, $5=3\cdot1+2$, $3=2\cdot1+1$, $2=1\cdot2+0$<br>
+    $\gcd = 1$
+  </div>
+</div>
+
+<!-- PART D -->
+<div class="section-title">Part D: Using the GCD–LCM Identity</div>
+<div class="section-sub">Recall: $\operatorname{lcm}(a,b) = \dfrac{a\cdot b}{\gcd(a,b)}$</div>
+
+<div class="card" data-answers="138621">
+  <div class="q-text"><span class="q-num">15.</span> Given $\gcd(861, 1127) = 7$, find $\operatorname{lcm}(861, 1127)$ without factoring.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="lcm">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">$\operatorname{lcm} = \dfrac{861\cdot1127}{7} = 138{,}621$</div>
+</div>
+
+<div class="card" data-answers="92820">
+  <div class="q-text"><span class="q-num">16.</span> Given $\gcd(1428, 3315) = 51$, find $\operatorname{lcm}(1428, 3315)$.</div>
+  <div class="answer-row">
+    <input type="text" placeholder="lcm">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">$\operatorname{lcm} = \dfrac{1428\cdot3315}{51} = 92{,}820$</div>
+</div>
+
+<div class="card" data-gcd="102" data-lcm="9282">
+  <div class="q-text"><span class="q-num">17.</span> Use the Euclidean Algorithm to find $\gcd(714, 1326)$, then use the identity to find $\operatorname{lcm}(714, 1326)$.</div>
+  <div class="multi-field">
+    <div class="answer-row"><label>gcd =</label><input type="text" class="gcd-input" placeholder="gcd"></div>
+    <div class="answer-row"><label>lcm =</label><input type="text" class="lcm-input" placeholder="lcm"></div>
+  </div>
+  <div class="answer-row">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">
+    $1326=714\cdot1+612$<br>$714=612\cdot1+102$<br>$612=102\cdot6+0$<br>
+    $\gcd = 102$ &nbsp;&nbsp; $\operatorname{lcm} = \dfrac{714\cdot1326}{102} = 9282$
+  </div>
+</div>
+
+<!-- PART E -->
+<div class="section-title">Part E: Mixed Review / Challenge</div>
+
+<div class="card" data-answers="5">
+  <div class="q-text"><span class="q-num">18.</span> Two gears have 48 and 60 teeth. If they start aligned, after how many rotations of the smaller gear will they realign?</div>
+  <details class="hint"><summary>Hint</summary>This is an LCM problem — think about what "realign" means in terms of teeth traveled.</details>
+  <div class="answer-row">
+    <input type="text" placeholder="rotations of smaller gear">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">$\operatorname{lcm}(48,60) = 240$ teeth of travel $\Rightarrow 240/48 = 5$ rotations of the smaller gear.</div>
+</div>
+
+<div class="card" data-answers="36">
+  <div class="q-text"><span class="q-num">19.</span> A rectangular tile floor is tiled with the largest possible square tiles with no cutting, using a room that is 360 in. by 252 in. What is the side length of each square tile?</div>
+  <details class="hint"><summary>Hint</summary>Think GCD.</details>
+  <div class="answer-row">
+    <input type="text" placeholder="side length (in.)">
+    <button class="check-btn">Check</button>
+    <button class="reveal-btn">Show Solution</button>
+    <span class="feedback"></span>
+  </div>
+  <div class="solution">$\gcd(360,252) = 36$, so tiles are $36\times36$ in.</div>
+</div>
+
+<div class="card conceptual">
+  <div class="q-text"><span class="q-num">20.</span> Explain in your own words why $\gcd(a,b)\cdot\operatorname{lcm}(a,b) = a\cdot b$, using the "shared primes vs. unshared primes" idea from lecture. (Short conceptual answer — self-check against the solution.)</div>
+  <textarea placeholder="Type your reasoning here..."></textarea>
+  <div style="margin-top:8px;">
+    <button class="reveal-btn">Show Solution</button>
+  </div>
+  <div class="solution">Every prime factor contributes to the product $a\cdot b$ either once (if shared, it's "used" in the gcd) or fully (if not shared, it's "used" in the lcm's extra factors) — splitting the combined prime factors of $a\cdot b$ exactly between gcd and the leftover gives lcm, so their product recovers $a\cdot b$.</div>
+</div>
+
+<div class="final-score">
+  <h2>Your Progress</h2>
+  <div id="score-display">0 / 19</div>
+  <p style="color:var(--muted);">correct on first check (keep retrying — this just tracks your most recent attempt per question)</p>
+</div>
+
+</div>
+
+<script>
+document.querySelectorAll('.reveal-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const sol = btn.closest('.card').querySelector('.solution');
+    sol.classList.toggle('show');
+    btn.textContent = sol.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+    if(window.MathJax && MathJax.typesetPromise){ MathJax.typesetPromise([sol]); }
+  });
+});
+
+function normFactors(str){
+  return str.split('*').map(s=>parseInt(s.trim(),10)).filter(n=>!isNaN(n)).sort((a,b)=>a-b).join(',');
+}
+
+function checkSingle(card){
+  const dataAns = card.getAttribute('data-answers');
+  const input = card.querySelector('.answer-row input[type="text"]');
+  const feedback = card.querySelector('.feedback');
+  const val = input.value.trim();
+  let correct = false;
+  if(dataAns.includes('*')){
+    correct = normFactors(val) === normFactors(dataAns);
+  } else {
+    const alts = dataAns.split(',').map(s=>s.trim().toLowerCase());
+    correct = alts.includes(val.toLowerCase());
+  }
+  applyResult(card, feedback, correct);
+}
+
+function checkMulti(card){
+  const gcdVal = parseInt(card.querySelector('.gcd-input').value.trim(), 10);
+  const lcmVal = parseInt(card.querySelector('.lcm-input').value.trim(), 10);
+  const dataGcd = parseInt(card.getAttribute('data-gcd'), 10);
+  const dataLcm = parseInt(card.getAttribute('data-lcm'), 10);
+  const feedback = card.querySelector('.feedback');
+  const correct = (gcdVal === dataGcd) && (lcmVal === dataLcm);
+  applyResult(card, feedback, correct);
+}
+
+function applyResult(card, feedback, correct){
+  const wasChecked = card.classList.contains('answered-correct') || card.classList.contains('answered-incorrect');
+  card.classList.remove('answered-correct','answered-incorrect');
+  if(correct){
+    card.classList.add('answered-correct');
+    feedback.textContent = '✓ Correct';
+    feedback.className = 'feedback correct';
+  } else {
+    card.classList.add('answered-incorrect');
+    feedback.textContent = '✗ Try again';
+    feedback.className = 'feedback incorrect';
+  }
+  if(!wasChecked) updateProgress();
+  updateScore();
+}
+
+document.querySelectorAll('.card').forEach(card=>{
+  const btn = card.querySelector('.check-btn');
+  if(!btn) return;
+  btn.addEventListener('click', ()=>{
+    if(card.hasAttribute('data-gcd')) checkMulti(card);
+    else checkSingle(card);
+  });
+});
+
+const totalCheckable = document.querySelectorAll('.card .check-btn').length;
+
+function updateProgress(){
+  const checked = document.querySelectorAll('.card.answered-correct, .card.answered-incorrect').length;
+  document.getElementById('progressFill').style.width = (checked/totalCheckable*100) + '%';
+  document.getElementById('progressText').textContent = checked + ' / ' + totalCheckable + ' checked';
+}
+
+function updateScore(){
+  const correct = document.querySelectorAll('.card.answered-correct').length;
+  document.getElementById('score-display').textContent = correct + ' / ' + totalCheckable;
+}
+</script>
+
+</body>
+</html>
